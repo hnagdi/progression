@@ -23,7 +23,7 @@ public class ProgressionController {
 
   public List<Integer> execute() {
 
-    ProgressionInput input = inputTaker.takeProgressionInput();
+    ProgressionInput input = this.inputTaker.takeProgressionInput();
     IProgression progression = this.progressionFactory.create(input.getProgressionType());
 
     if (inputValidator.validate(input)) {
@@ -35,4 +35,18 @@ public class ProgressionController {
     }
   }
 
+  public ProgressionController setProgressionFactory(IProgressionFactory progressionFactory) {
+    this.progressionFactory = progressionFactory;
+    return this;
+  }
+
+  public ProgressionController setInputTaker(IInputTaker inputTaker) {
+    this.inputTaker = inputTaker;
+    return this;
+  }
+
+  public ProgressionController setInputValidator(IInputValidator inputValidator) {
+    this.inputValidator = inputValidator;
+    return this;
+  }
 }

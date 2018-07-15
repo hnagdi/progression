@@ -1,35 +1,67 @@
 package com.bdd.controller;
 
-import com.bdd.inputtaker.CommandLineInputTaker;
-import com.bdd.service.ProgressionFactory;
-import com.bdd.validator.ProgressionInputValidator;
+import com.bdd.common.ProgressionInput;
+import com.bdd.common.ProgressionType;
+import com.bdd.inputtaker.IInputTaker;
+import com.bdd.service.IProgression;
+import com.bdd.service.IProgressionFactory;
+import com.bdd.validator.IInputValidator;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import java.util.Arrays;
 import java.util.List;
 
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
 public class ProgressionControllerTest {
 
+  @Mock
+  private IInputTaker mockInputTaker;
+
+  @Mock
+  private IInputValidator mockInputValidator;
+
+  @Mock
+  private IProgressionFactory mockProgressionFactory;
+
+  @Mock
+  private IProgression mockProgression;
+
+  private ProgressionController testObject;
+
+
+  @Before
+  public void setUp() {
+    testObject = new ProgressionController(mockProgressionFactory, mockInputTaker, mockInputValidator);
+  }
 
   @Test
   public void testAP() {
-    ProgressionController testObject = new ProgressionController(new ProgressionFactory(),
-      new CommandLineInputTaker(new String[]{"AP", "2", "5", "5"}), new ProgressionInputValidator());
+    List<Integer> expected = Arrays.asList(5, 7, 9);
+    ProgressionInput input = new ProgressionInput().setProgressionType(ProgressionType.AP).setDifference(2).setStart(5).setTotalElements(3);
+    when(mockInputTaker.takeProgressionInput()).thenReturn(input);
+    when(mockInputValidator.validate(input)).thenReturn(true);
+    when(mockProgressionFactory.create(ProgressionType.AP)).thenReturn(mockProgression);
+    when(mockProgression.generate(5, 2, 3)).thenReturn(expected);
+
     List<Integer> series = testObject.execute();
-    Assert.assertEquals(5, series.size());
-  }
+    Assert.assertEquals(expected, series);
 
-  @Test(expected = RuntimeException.class)
-  public void testGP() {
-    ProgressionController testObject = new ProgressionController(new ProgressionFactory(),
-      new CommandLineInputTaker(new String[]{"GP", "2", "5", "5"}), new ProgressionInputValidator());
-    testObject.execute();
-  }
+    verify(mockInputTaker).takeProgressionInput();
+    verify(mockProgressionFactory).create(ProgressionType.AP);
+    verify(mockProgression).generate(5, 2, 3);
+    verify(mockInputValidator).validate(input);
 
-  @Test(expected = RuntimeException.class)
-  public void testHP() {
-    ProgressionController testObject = new ProgressionController(new ProgressionFactory(),
-      new CommandLineInputTaker(new String[]{"HP", "2", "5", "5"}), new ProgressionInputValidator());
-    testObject.execute();
+    verifyNoMoreInteractions(mockInputTaker);
+    verifyNoMoreInteractions(mockProgressionFactory);
+    verifyNoMoreInteractions(mockProgression);
+    verifyNoMoreInteractions(mockInputValidator);
   }
-
 }

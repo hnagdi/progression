@@ -10,7 +10,7 @@ public class MainApplication {
     //IInputTaker inputTaker = new PropertiesInputTaker("input.properties");
 
     new ProgressionController(new ProgressionFactory(),
-      new CommandLineInputTaker(args),
+      new CommandLineInputTaker(),
       new ProgressionInputValidator()).execute();
   }
 
